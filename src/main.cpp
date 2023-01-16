@@ -12,29 +12,21 @@ public:
 		std::string name;
 		enum { STRING, INT, FLOAT, VECTOR } type{};
 		std::variant<std::string, int, float, Vector> data;
+		// ^ using a variant because union fails with strings
 	};
 
 	std::vector<Entry> entries;
 
-	void Add(const std::string& name, float value) {
-		Entry e{ .name = name, .type = Entry::FLOAT,.data = value };
-		entries.push_back(e);
-	}
+	// This adds Add() functions for each of the types:
+#define CFG_ADDER(TYPE, TYPE_ENUM) void Add(const std::string& name, TYPE value) { \
+	Entry e{ .name = name, .type = Entry::TYPE_ENUM, .data = value }; \
+	entries.push_back(e); }
 
-	void Add(const std::string& name, std::string& value) {
-		Entry e{ .name = name, .type = Entry::STRING,.data = value };
-		entries.push_back(e);
-	}
-
-	void Add(const std::string& name, int value) {
-		Entry e{ .name = name, .type = Entry::INT,.data = value };
-		entries.push_back(e);
-	}
-
-	void Add(const std::string& name, const Vector& value) {
-		Entry e{ .name = name, .type = Entry::VECTOR,.data = value };
-		entries.push_back(e);
-	}
+	// Add your own types here:
+	CFG_ADDER(int, INT);
+	CFG_ADDER(float, FLOAT);
+	CFG_ADDER(std::string, STRING);
+	CFG_ADDER(Vector, VECTOR);
 
 	void Save() {};
 	void Load() {};
@@ -74,7 +66,7 @@ int main(int argc, char* argv[]) {
 
 	CFG_ADD(x);
 	CFG_ADD(y);
-	CFG_ADD(smth);
+	CFG_ADD(smth);//
 	CFG_ADD(text);
 	CFG_ADD(vec);
 
