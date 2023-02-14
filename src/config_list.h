@@ -1,7 +1,14 @@
 // 
 // ConfigList by Nothke
 // 
-// Follow each of the steps to add your own type
+// How to use:
+// 
+// int number = 42;
+// cfgList.Add("my_number", &number);
+// 
+// Then just use Load(iniStructure) and Save(iniStructure)
+// 
+// To add your own type, follow each of the steps in the comments below.
 //
 
 #pragma once
@@ -30,6 +37,7 @@ public:
 #define MAP_TYPE(typeName, typeEnum) if constexpr (std::is_same<T, typeName>()) return Entry::Type::typeEnum
 
 			// STEP 3: Map type to enum here:
+
 			MAP_TYPE(std::string, STRING);
 			MAP_TYPE(int, INT);
 			MAP_TYPE(float, FLOAT);
