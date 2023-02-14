@@ -56,10 +56,10 @@ else return Entry::Type::NONE;
 
 			switch (e.type)
 			{
-			case Entry::FLOAT: std::cout << std::get<float>(e.data); break;
-			case Entry::INT: std::cout << std::get<int>(e.data); break;
-			case Entry::STRING: std::cout << std::get<std::string>(e.data); break;
-			case Entry::VECTOR: std::cout << std::get<Vector>(e.data).x; break;
+			case Entry::FLOAT: std::cout << *std::get<float*>(e.data); break;
+			case Entry::INT: std::cout << *std::get<int*>(e.data); break;
+			case Entry::STRING: std::cout << *std::get<std::string*>(e.data); break;
+			case Entry::VECTOR: std::cout << std::get<Vector*>(e.data)->x; break;
 			}
 
 			std::cout << "\n";
