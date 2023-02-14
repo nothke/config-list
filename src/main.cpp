@@ -2,9 +2,13 @@
 #include <vector>
 #include <variant>
 
+#include "ini.h"
+
 struct Vector {
 	float x{}, y{}, z{};
 };
+
+// Follow each of the steps to add your own type
 
 class Configurator {
 public:
@@ -46,8 +50,37 @@ else return Entry::Type::NONE;
 		entries.push_back(e);
 	}
 
-	void Save() {};
-	void Load() {};
+	void Save(mINI::INIStructure& ini) {
+		using namespace std;
+
+		for (auto& e : entries)
+		{
+			std::string segment = "main";
+
+			switch (e.type) {
+			case Entry::FLOAT:	ini[segment][e.name] = to_string(*get<float*>(e.data));			break;
+			case Entry::INT:	ini[segment][e.name] = to_string(*get<int*>(e.data));			break;
+			case Entry::STRING: ini[segment][e.name] = *get<string*>(e.data);					break;
+			case Entry::VECTOR: ini[segment][e.name] = to_string((*get<Vector*>(e.data)).x);	break;
+			}
+		}
+	};
+
+	void Load(mINI::INIStructure& ini) {
+		using namespace std;
+
+		for (auto& e : entries)
+		{
+			std::string segment = "main";
+
+			switch (e.type) {
+			case Entry::FLOAT:	*get<float*>(e.data) = std::stof(ini[segment][e.name]);			break;
+			case Entry::INT:	*get<int*>(e.data) = std::stoi(ini[segment][e.name]);			break;
+			case Entry::STRING: *get<string*>(e.data) = ini[segment][e.name];					break;
+			case Entry::VECTOR: (*get<Vector*>(e.data)).x = std::stof(ini[segment][e.name]);	break;
+			}
+		}
+	};
 
 	void List() {
 		for (auto& e : entries)
@@ -56,8 +89,8 @@ else return Entry::Type::NONE;
 
 			switch (e.type)
 			{
-			case Entry::FLOAT: std::cout << *std::get<float*>(e.data); break;
-			case Entry::INT: std::cout << *std::get<int*>(e.data); break;
+			case Entry::FLOAT:	std::cout << *std::get<float*>(e.data); break;
+			case Entry::INT:	std::cout << *std::get<int*>(e.data); break;
 			case Entry::STRING: std::cout << *std::get<std::string*>(e.data); break;
 			case Entry::VECTOR: std::cout << std::get<Vector*>(e.data)->x; break;
 			}
@@ -88,7 +121,10 @@ struct StructThatHasCFGValues {
 };
 
 int main(int argc, char* argv[]) {
-	cfg.Load();
+
+	mINI::INIFile file("config.ini");
+
+	mINI::INIStructure data;
 
 	int x = 3;
 	int y = 10;
@@ -107,12 +143,22 @@ int main(int argc, char* argv[]) {
 	StructThatHasCFGValues strct;
 	strct.SubmitToConfig();
 
-	cfg.Save();
+	cfg.Save(data);
 
 	cfg.List();
+	std::cout << "\n";
 
-	char chars[32] = "soijo";
-	strcpy(chars, text.c_str());
+	//file.generate(data, true);
 
+	if (file.read(data))
+		cfg.Load(data);
+
+	cfg.List();//
+
+	y = 666;
+
+	cfg.Save(data);
+	file.write(data);
+	
 	return EXIT_SUCCESS;
 }
