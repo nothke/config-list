@@ -5,7 +5,7 @@
 #include "ini.h"
 
 struct Vector {
-	float x{}, y{}, z{};
+	float x{}, y{}, z{}, w{};
 };
 
 // Follow each of the steps to add your own type
@@ -19,8 +19,8 @@ public:
 		// ^ using a variant because union fails with strings
 
 		template<typename T>
-		static constexpr Type GetTypeEnum() {
-
+		static constexpr Type GetTypeEnum() 
+		{
 #define MAP_TYPE(typeName, typeEnum) if constexpr (std::is_same<T, typeName>()) return Entry::Type::typeEnum
 
 			// STEP 3: Map type to enum here:
@@ -57,6 +57,8 @@ else return Entry::Type::NONE;
 		{
 			std::string segment = "main";
 
+			// Step 4: Add your string conversion for saving here:
+
 			switch (e.type) {
 			case Entry::FLOAT:	ini[segment][e.name] = to_string(*get<float*>(e.data));			break;
 			case Entry::INT:	ini[segment][e.name] = to_string(*get<int*>(e.data));			break;
@@ -73,6 +75,8 @@ else return Entry::Type::NONE;
 		{
 			std::string segment = "main";
 
+			// Step 5: Add your conversion from string when loading here:
+
 			switch (e.type) {
 			case Entry::FLOAT:	*get<float*>(e.data) = std::stof(ini[segment][e.name]);			break;
 			case Entry::INT:	*get<int*>(e.data) = std::stoi(ini[segment][e.name]);			break;
@@ -86,6 +90,8 @@ else return Entry::Type::NONE;
 		for (auto& e : entries)
 		{
 			std::cout << e.name << ", " << e.type << ": ";
+
+			// Step 6 (optional): Add this for debugging:
 
 			switch (e.type)
 			{
