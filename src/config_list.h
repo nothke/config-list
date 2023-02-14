@@ -1,3 +1,9 @@
+// 
+// ConfigList by Nothke
+// 
+// Follow each of the steps to add your own type
+//
+
 #pragma once
 
 #include <iostream>
@@ -9,8 +15,6 @@
 struct Vector {
 	float x{}, y{}, z{}, w{};
 };
-
-// Follow each of the steps to add your own type
 
 class ConfigList {
 public:
@@ -45,8 +49,7 @@ else return Entry::Type::NONE;
 
 		constexpr Entry::Type type = Entry::GetTypeEnum<T>();
 
-		//static_assert(type != Entry::Type::NONE);
-
+		static_assert(type != Entry::Type::NONE); // Unsupported type
 
 		Entry e{ .name = name, .type = type, .data = ptr };
 		entries.push_back(e);

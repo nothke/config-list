@@ -42,6 +42,9 @@ int main(int argc, char* argv[]) {
 	CFG_ADD(text);
 	CFG_ADD(vec);
 
+	unsigned char c = 64;
+	//cfg.Add("Oops", &c); // Uncommenting this line gives static_assert error
+
 	StructThatHasCFGValues strct;
 	strct.SubmitToConfig();
 
