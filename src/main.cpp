@@ -10,23 +10,41 @@ class Configurator {
 public:
 	struct Entry {
 		std::string name;
-		enum { STRING, INT, FLOAT, VECTOR } type{};
-		std::variant<std::string, int, float, Vector> data;
+		enum Type { NONE, STRING, INT, FLOAT, VECTOR } type{}; // Step 1: Add your enum here
+		std::variant<std::string*, int*, float*, Vector*> data; // Step 2: Add your pointer type here
 		// ^ using a variant because union fails with strings
+
+		template<typename T>
+		static constexpr Type GetTypeEnum() {
+
+#define MAP_TYPE(typeName, typeEnum) if constexpr (std::is_same<T, typeName>()) return Entry::Type::typeEnum
+
+			// STEP 3: Map type to enum here:
+			MAP_TYPE(std::string, STRING);
+			MAP_TYPE(int, INT);
+			MAP_TYPE(float, FLOAT);
+			MAP_TYPE(Vector, VECTOR);
+
+#undef MAP_TYPE
+
+else return Entry::Type::NONE;
+		}
 	};
+
 
 	std::vector<Entry> entries;
 
-	// This adds Add() functions for each of the types:
-#define CFG_ADDER(TYPE, TYPE_ENUM) void Add(const std::string& name, TYPE value) { \
-	Entry e{ .name = name, .type = Entry::TYPE_ENUM, .data = value }; \
-	entries.push_back(e); }
+	template <typename T>
+	void Add(const std::string& name, T* ptr) {
 
-	// Add your own types here:
-	CFG_ADDER(int, INT);
-	CFG_ADDER(float, FLOAT);
-	CFG_ADDER(std::string, STRING);
-	CFG_ADDER(Vector, VECTOR);
+		constexpr Entry::Type type = Entry::GetTypeEnum<T>();
+
+		//static_assert(type != Entry::Type::NONE);
+
+
+		Entry e{ .name = name, .type = type, .data = ptr };
+		entries.push_back(e);
+	}
 
 	void Save() {};
 	void Load() {};
@@ -53,7 +71,21 @@ public:
 } cfg;
 
 
-#define CFG_ADD(x) cfg.Add(#x, x);
+#define CFG_ADD(x) cfg.Add(#x, &x);
+
+struct StructThatHasCFGValues {
+
+	int years{ 33 };
+	float multiplier{ 1.f };
+	int hash{ 2138210984 };
+
+	void SubmitToConfig()
+	{
+		CFG_ADD(years);
+		CFG_ADD(multiplier);
+		CFG_ADD(hash);
+	}
+};
 
 int main(int argc, char* argv[]) {
 	cfg.Load();
@@ -64,11 +96,16 @@ int main(int argc, char* argv[]) {
 	std::string text = "wow, it works";
 	Vector vec;
 
+	cfg.Add("x", &x);
+
 	CFG_ADD(x);
 	CFG_ADD(y);
 	CFG_ADD(smth);
-	CFG_ADD(text.c_str());
+	CFG_ADD(text);
 	CFG_ADD(vec);
+
+	StructThatHasCFGValues strct;
+	strct.SubmitToConfig();
 
 	cfg.Save();
 

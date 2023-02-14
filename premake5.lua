@@ -8,7 +8,7 @@ project (NAME)
 	language "C++"
 	architecture "x64"
 	cppdialect "C++20"
-	toolset "clang"
+	--toolset "clang"
 	targetdir "bin/%{cfg.buildcfg}"
 	defines{"WIN32", "_CONSOLE"}
 
